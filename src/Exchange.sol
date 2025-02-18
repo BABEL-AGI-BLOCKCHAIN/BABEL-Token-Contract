@@ -37,9 +37,7 @@ contract Exchange is Ownable {
     event Withdrawn(address indexed token, uint256 amount);
     event DailyLimitUpdated(address indexed sourceToken, uint256 newLimit);
 
-    constructor(address initialOwner) Ownable(initialOwner) {
-
-    }
+    constructor(address initialOwner) Ownable(initialOwner) {}
 
     function setPair(
         address sourceToken,
@@ -55,11 +53,11 @@ contract Exchange is Ownable {
         require(rateDenominator > 0, "Invalid denominator");
 
         pairs[sourceToken] = TokenPair({
-        targetToken: targetToken,
-        rateNumerator: rateNumerator,
-        rateDenominator: rateDenominator,
-        enabled: enabled,
-        dailyLimit: dailyLimit
+            targetToken: targetToken,
+            rateNumerator: rateNumerator,
+            rateDenominator: rateDenominator,
+            enabled: enabled,
+            dailyLimit: dailyLimit
         });
 
         emit PairUpdated(
@@ -72,11 +70,14 @@ contract Exchange is Ownable {
         );
     }
 
-    function setDailyLimit(address sourceToken, uint256 newLimit)
-    external
-    onlyOwner
-    {
-        require(pairs[sourceToken].targetToken != address(0), "Pair not exists");
+    function setDailyLimit(
+        address sourceToken,
+        uint256 newLimit
+    ) external onlyOwner {
+        require(
+            pairs[sourceToken].targetToken != address(0),
+            "Pair not exists"
+        );
         pairs[sourceToken].dailyLimit = newLimit;
         emit DailyLimitUpdated(sourceToken, newLimit);
     }
@@ -88,7 +89,7 @@ contract Exchange is Ownable {
         require(sourceAmount > 0, "Invalid amount");
 
         uint256 targetAmount = (sourceAmount * pair.rateNumerator) /
-        pair.rateDenominator;
+            pair.rateDenominator;
         require(targetAmount > 0, "Invalid target amount");
 
         IERC20 targetToken = IERC20(pair.targetToken);
@@ -128,11 +129,9 @@ contract Exchange is Ownable {
         emit Withdrawn(token, amount);
     }
 
-    function getRemainingDailyLimit(address sourceToken)
-    external
-    view
-    returns (uint256)
-    {
+    function getRemainingDailyLimit(
+        address sourceToken
+    ) external view returns (uint256) {
         TokenPair memory pair = pairs[sourceToken];
         require(pair.targetToken != address(0), "Pair not exists");
 

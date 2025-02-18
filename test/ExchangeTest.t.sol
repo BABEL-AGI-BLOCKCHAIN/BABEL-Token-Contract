@@ -4,25 +4,22 @@ pragma solidity ^0.8.0;
 import "forge-std/Test.sol";
 import "forge-std/console.sol";
 import "../src/Exchange.sol";
-import "../src/TopicERC20.sol";
+import "../src/BABELPlaceholder.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-
-
 
 contract ExchangeTest is Test {
     Exchange private exchange;
-    TopicERC20 private sourceToken;
-    TopicERC20 private targetToken;
+    BABELPlaceholder private sourceToken;
+    BABELPlaceholder private targetToken;
 
     address private owner = address(0x123);
     address private user = address(0x456);
 
     function setUp() public {
-
         vm.startPrank(owner);
         exchange = new Exchange(owner);
-        sourceToken = new TopicERC20("SourceToken", "SRC", 10000000 * 1e18);
-        targetToken = new TopicERC20("TargetToken", "TGT", 10000000 * 1e18);
+        sourceToken = new BABELPlaceholder("SourceToken", "SRC", 10000000 * 1e18);
+        targetToken = new BABELPlaceholder("TargetToken", "TGT", 10000000 * 1e18);
 
         exchange.setPair(
             address(sourceToken),
@@ -48,8 +45,13 @@ contract ExchangeTest is Test {
             2000 * 1e18
         );
 
-        (address targetTokenAddr, uint256 rateNum, uint256 rateDenom, bool enabled, uint256 dailyLimit) =
-        exchange.pairs(address(sourceToken));
+        (
+            address targetTokenAddr,
+            uint256 rateNum,
+            uint256 rateDenom,
+            bool enabled,
+            uint256 dailyLimit
+        ) = exchange.pairs(address(sourceToken));
 
         assertEq(targetTokenAddr, address(targetToken));
         assertEq(rateNum, 10);
@@ -123,7 +125,9 @@ contract ExchangeTest is Test {
     // }
 
     function testGetRemainingDailyLimit() public {
-        uint256 remainingLimit = exchange.getRemainingDailyLimit(address(sourceToken));
+        uint256 remainingLimit = exchange.getRemainingDailyLimit(
+            address(sourceToken)
+        );
         assertEq(remainingLimit, 1000 * 1e18);
         vm.prank(owner);
         sourceToken.transfer(user, 500 * 1e18);
