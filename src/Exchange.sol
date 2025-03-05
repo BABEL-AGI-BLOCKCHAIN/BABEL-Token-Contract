@@ -4,7 +4,6 @@ pragma solidity ^0.8.0;
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "forge-std/console.sol";
 contract Exchange is Ownable {
     using SafeERC20 for IERC20;
 
@@ -18,7 +17,7 @@ contract Exchange is Ownable {
     }
 
     // 嵌套映射：sourceToken => targetToken => TokenPair
-    mapping(address => mapping(address => TokenPair)) public pairs;
+    mapping(address => mapping(address => TokenPair)) private pairs;
     // 每日已兑换量记录：sourceToken => targetToken => day => amount
     mapping(address => mapping(address => mapping(uint256 => uint256))) public dailySwapped;
 
@@ -44,6 +43,13 @@ contract Exchange is Ownable {
 
     constructor(address initialOwner) Ownable(initialOwner) {
 
+    }
+
+
+    function getPairs(address token1, address token2) public view returns(uint256,uint256,uint256,uint256,bool,uint256) {
+        (address tokenA, address tokenB) = _sortTokens(token1, token2);
+        TokenPair memory pair = pairs[tokenA][tokenB];
+        return (pair.rateNumerator,pair.rateDenominator,pair.reverseRateNumerator,pair.reverseRateDenominator,pair.enabled,pair.dailyLimit);
     }
 
     // 检查货币对是否已存在
@@ -115,7 +121,6 @@ contract Exchange is Ownable {
         if (tokenA == sourceToken) {
             _swap(sourceToken, targetToken, sourceAmount);
         } else {
-            console.log("111111111");
             _reverseSwap(sourceToken, targetToken, sourceAmount);
         }
     }
@@ -184,10 +189,8 @@ contract Exchange is Ownable {
         require(targetAmount > 0, "Invalid amount");
 
         // 计算源代币数量
-        console.log(pair.reverseRateDenominator);
         uint256 sourceAmount = (targetAmount * pair.reverseRateNumerator) / pair.reverseRateDenominator;
         require(sourceAmount > 0, "Invalid source amount");
-        console.log(sourceAmount);
         // 检查合约余额是否足够
         IERC20 sourceTokenContract = IERC20(sourceToken);
         require(
@@ -198,7 +201,6 @@ contract Exchange is Ownable {
         // 检查每日限额
         uint256 today = block.timestamp / 1 days;
         uint256 swappedToday = dailySwapped[sourceToken][targetToken][today];
-        console.log(swappedToday);
         require(
             swappedToday + sourceAmount <= pair.dailyLimit,
             "Exceeds daily limit"
