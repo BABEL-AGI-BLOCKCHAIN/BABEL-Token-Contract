@@ -15,7 +15,7 @@ Foundry consists of:
 
 | Network | BABELPlaceholder                           | Exchange                                   |
 | ------- | ------------------------------------------ | ------------------------------------------ |
-| Sepolia | 0xb5d14101e5C7140f163aB29A5fa620355d0B8DA9 | 0x963fc35FB139e22f3fb48667C26B497938bfaB85 |
+| Sepolia | 0xb5d14101e5C7140f163aB29A5fa620355d0B8DA9 | 0x7C6B3363c2cf638f773d475210C55D3aE7519bf6 |
 
 ### Mainnets
 
